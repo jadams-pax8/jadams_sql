@@ -13,6 +13,10 @@ case
 end as last_name,
 concat(concat(first_name, ' '), last_name) AS full_name,
 case
+	when fcm.fact_campaign_member_member_type like 'Contact' then dcon.contact_country
+	when fcm.fact_campaign_member_member_type like 'Lead' then dl.lead_country
+end as country,
+case
 	when fcm.fact_campaign_member_member_type like 'Contact' then dp.partner_name
 	when fcm.fact_campaign_member_member_type like 'Lead' then dl.lead_company_name
 end as company_name,
