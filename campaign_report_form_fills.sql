@@ -1,7 +1,8 @@
+-- Users who have filled out forms that a part of the global form collection
 select
-	fcm.created_date, 
+	fcm.created_date,
+	dc.campaign_name, 
 	fcm.fact_campaign_member_status,
-	-- dc.campaign_name,
 	fcm.fact_campaign_member_member_type,
 case
 	when fcm.fact_campaign_member_member_type like 'Contact' then dcon.contact_first_name
@@ -20,22 +21,15 @@ case
 	when fcm.fact_campaign_member_member_type like 'Contact' then dp.partner_name
 	when fcm.fact_campaign_member_member_type like 'Lead' then dl.lead_company_name
 end as company_name,
-case
-	when campaign_name like 'OP-2023-Academy Schedule a Call-GLBL-1053' then 'Academy Schedule a Call'
-	when campaign_name like 'OP-2023-Channel Events Schedule a Call-GLBL-1054' then 'Channel Events Schedule a Call'
-	when campaign_name like 'OP-2023-MSP Referral-GLBL-1056' then 'MSP Referral'
-	when campaign_name like 'OP-2023-Peer Group Requested-GLBL-1058' then 'Peer Group Requested'
-	when campaign_name like 'OP-2023-Schedule a Call-GLBL-1052' then 'Schedule a Call'
-	when campaign_name like 'OP-2023-Schedule a Demo-GLBL-1055' then 'Schedule a Demo'
-	else campaign_name
-end as form_name,
 	fcm.fact_campaign_member_key as member_key,
 	fcm.fact_campaign_member_id as member_id,
 	fcm.fact_campaign_member_contact_key as contact_key,
 	fcm.fact_campaign_member_contact_id as contact_id,
 	fcm.fact_campaign_member_campaign_key as campaign_key,
 	fcm.fact_campaign_member_campaign_id as campaign_id,
-	fcm.fact_campaign_member_account_id as partner_sf_account_id
+	fcm.fact_campaign_member_account_id as partner_sf_account_id,
+	dl.lead_last_utm_campaign,
+	dl.lead_last_utm_content
 from 
 	esdw.fact_campaign_member fcm
 left join 
@@ -47,9 +41,13 @@ left join
 left join 
 	esdw.dim_partner dp on dp.partner_sf_account_id = fcm.fact_campaign_member_account_id
 where 
-	campaign_key like '14081' or 
-	campaign_key like '14113' or
-	campaign_key like '14065' or
-	campaign_key like '14097' or 
-	campaign_key like '15849' or 
-	campaign_key like '15865'
+	(campaign_key like '17081' or 
+	campaign_key like '17161' or
+	campaign_key like '17145' or
+	campaign_key like '17049' or 
+	campaign_key like '17097' or
+	campaign_key like '17129' or
+	campaign_key like '17113' or
+	campaign_key like '17065')
+	and 
+	(company_name not ilike 'Pax8')

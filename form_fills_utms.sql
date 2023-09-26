@@ -1,7 +1,6 @@
 select
 	fcm.created_date, 
 	fcm.fact_campaign_member_status,
-	-- dc.campaign_name,
 	fcm.fact_campaign_member_member_type,
 case
 	when fcm.fact_campaign_member_member_type like 'Contact' then dcon.contact_first_name
@@ -35,7 +34,9 @@ end as form_name,
 	fcm.fact_campaign_member_contact_id as contact_id,
 	fcm.fact_campaign_member_campaign_key as campaign_key,
 	fcm.fact_campaign_member_campaign_id as campaign_id,
-	fcm.fact_campaign_member_account_id as partner_sf_account_id
+	fcm.fact_campaign_member_account_id as partner_sf_account_id,
+	dl.lead_last_utm_campaign,
+	dl.lead_last_utm_content
 from 
 	esdw.fact_campaign_member fcm
 left join 

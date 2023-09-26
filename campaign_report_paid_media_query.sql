@@ -1,3 +1,4 @@
+-- All paid media metrics for a specific campaign (Filter at bottom)
 select
 	day,
 	clicks,
@@ -8,6 +9,7 @@ select
 	conversions,
 	ad_id,
 	region,
+	audience_name,
 	conversion_schedule_a_call,
 	conversion_schedule_a_demo,
 	conversion_partner_signup, 
@@ -25,11 +27,7 @@ select
 	adverity.google_creative.conversions as conversions,
 	adverity.google_creative.ad_id as ad_id,
 	adverity.google_creative.region as region,
--- 	(case when adverity.google_conversions.conversion_schedule_a_call <> '0' then adverity.google_conversions.conversion_schedule_a_call 
--- 	    when adverity.google_conversions.conversion_schedule_a_demo <> '0' then adverity.google_conversions.conversion_schedule_a_demo  
--- 	        when adverity.google_conversions.conversion_partner_signup <> '0' then adverity.google_conversions.conversion_partner_signup  
--- 	            when adverity.google_conversions.conversion_event_registration <> '0' then adverity.google_conversions.conversion_event_registration  
--- 	                when adverity.google_conversions.conversion_guide_download <> '0' then adverity.google_conversions.conversion_guide_download else '0' end) as column 
+	adverity.google_creative.audience_name as audience_name,
     sum(adverity.google_conversions.conversion_schedule_a_call) as conversion_schedule_a_call,
     sum(adverity.google_conversions.conversion_schedule_a_demo) as conversion_schedule_a_demo,
 	sum(adverity.google_conversions.conversion_partner_signup) as conversion_partner_signup, 
@@ -40,7 +38,7 @@ from
 	adverity.google_creative 
 left join 
 	adverity.google_conversions  using (ad_id,day)
-group by 1,2,3,4,5,6,7,8,9
+group by 1,2,3,4,5,6,7,8,9,10
 
 union all
 
@@ -54,6 +52,7 @@ select
 	adverity.linkedin_creative.conversions as conversions,
 	adverity.linkedin_creative.ad_id as ad_id,
 	adverity.linkedin_creative.region as region,
+	adverity.linkedin_creative.audience_name as audience_name,
 	sum(adverity.linkedin_conversions.conversion_schedule_a_call) as conversion_schedule_a_call, 
 	sum(adverity.linkedin_conversions.conversion_schedule_a_demo) as schedule_a_demo, 
 	sum(adverity.linkedin_conversions.conversion_partner_signup) as conversion_partner_signup, 
@@ -64,7 +63,75 @@ from
 	adverity.linkedin_creative
 left join 
 	adverity.linkedin_conversions using (ad_id,day)
+group by 1,2,3,4,5,6,7,8,9,10
 
+union all 
+	
+select
+	day,
+	clicks,
+	impressions,
+	round(costs,2) as costs,
+	platform,
+	ad_campaign,
+	conversions,
+	ad_id,
+	region,
+	audience_name,
+    conversion_schedule_a_call, 
+	conversion_schedule_a_demo,
+	conversion_partner_signup, 
+	conversion_peer_group,
+	conversion_event_registration,
+	conversion_guide_download
+from
+	adverity.mailgun_rollworks
+	
+union all 
+	
+select
+	day,
+	clicks,
+	impressions,
+	round(costs,2) as costs,
+	platform,
+	ad_campaign,
+	conversions,
+	ad_id,
+	region,
+	audience_name,
+    null as conversion_schedule_a_call, 
+	null as conversion_schedule_a_demo,
+	null as conversion_partner_signup, 
+	null as conversion_peer_group,
+	null as conversion_event_registration,
+	null as conversion_guide_download
+from
+	adverity.reddit_ads
 
-group by 1,2,3,4,5,6,7,8,9
-) order by day desc
+union all	
+
+select
+	day,
+	clicks,
+	impressions,
+	round(costs,2) as costs,
+	platform,
+	ad_campaign,
+	conversions,
+	ad_id,
+	region,
+	audience_name,
+    null as conversion_schedule_a_call, 
+	null as conversion_schedule_a_demo,
+	null as conversion_partner_signup, 
+	null as conversion_peer_group,
+	null as conversion_event_registration,
+	null as conversion_guide_download
+from
+	adverity.facebook_ads
+	
+) 
+-- Filter for a specific campaign
+where ad_campaign like '%AWS Brand Campaign%'
+order by day desc
